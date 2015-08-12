@@ -160,6 +160,28 @@ public class ObsResource1_8Test extends BaseDelegatingResourceTest<ObsResource1_
         assertEquals(2, groupMembers2.size());
 
     }
+
+	@Test
+	public void setValue_shouldReturnUuidForConceptTrue() throws Exception {
+		executeDataSet(EXAMPLE_XML_DATASET_PACKAGE_PATH);
+		org.openmrs.GlobalProperty trueConceptGlobalProperty = new org.openmrs.GlobalProperty(
+				org.openmrs.util.OpenmrsConstants.GLOBAL_PROPERTY_TRUE_CONCEPT, "7",
+				"Concept id of the concept defining the TRUE boolean concept");
+		org.openmrs.GlobalProperty falseConceptGlobalProperty = new org.openmrs.GlobalProperty(
+				org.openmrs.util.OpenmrsConstants.GLOBAL_PROPERTY_FALSE_CONCEPT, "8",
+				"Concept id of the concept defining the TRUE boolean concept");
+		Context.getAdministrationService().saveGlobalProperty(trueConceptGlobalProperty);
+		Context.getAdministrationService().saveGlobalProperty(falseConceptGlobalProperty);
+
+		ObsResource1_8 resource = getResource();
+		org.openmrs.api.ConceptService cs = Context.getConceptService();
+		Concept trueConcept = Context.getConceptService().getConcept(Integer.parseInt(Context.getAdministrationService()
+				.getGlobalProperty(org.openmrs.util.OpenmrsConstants.GLOBAL_PROPERTY_TRUE_CONCEPT)));//cs.getConceptByUuid("a09ab2c5-878e-4905-b25d-5784167d0216");
+		Obs obs = new Obs();
+		obs.setValueCoded(trueConcept);
+		assertEquals(trueConcept, ObsResource1_8.getValue(obs));
+	}
+
 	private void clearAndSetValue(Obs obs, ObsType type, Object value) {
 		obs.setValueCoded(type.equals(ObsType.CODED) ? (Concept) value : null);
 		obs.setValueComplex(type.equals(ObsType.COMPLEX) ? (String) value : null);
